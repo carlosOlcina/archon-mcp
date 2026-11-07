@@ -13,7 +13,7 @@ The repository has been initialized with the Spec-Driven Development (SDD) harne
 | `1ea10fd` | `chore: establish base folder structure and SDD progress tracking harness` | Workspaces placeholders and SDD state tracking harness |
 | `33a1ab8` | `docs: add SDD framework guidelines, architecture, and verification specs` | Framework conventions, architectural rules, and SDD documentation |
 | `05a4525` | `chore: configure Antigravity agent definitions and workspace settings` | Subagent persona definitions and workspace settings |
-| `d1e397b` | `docs(progress): record initialization summary in progress/init.md` | Session initialization tracking document |
+| `1f67a27` | `docs(progress): record initialization summary in progress/init.md` | Session initialization tracking document |
 
 ---
 
@@ -60,7 +60,7 @@ The repository has been initialized with the Spec-Driven Development (SDD) harne
   - `.gemini/settings.json`
 - **Rationale:** Provides the Antigravity agent prompt contracts for orchestrating SDD execution and IDE/workspace configurations.
 
-### 5. `docs(progress): record initialization summary in progress/init.md`
+### 5. `docs(progress): record initialization summary in progress/init.md` (`1f67a27`)
 - **Files:**
   - `progress/init.md`
 - **Rationale:** Documents the initial repository structure and commit lineage for auditability.
