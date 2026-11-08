@@ -17,3 +17,12 @@ export function getCatalogScaffoldStatus(): ScaffoldStatus {
     version: CATALOG_PACKAGE_INFO.version,
   });
 }
+
+export {
+  type EmbeddingProvider,
+  MockEmbeddingProvider,
+  WorkerUnavailableError,
+  type RealWorkerClientOptions,
+  RealWorkerClient,
+  WorkerProviderFactory,
+} from './embedding-provider.js';

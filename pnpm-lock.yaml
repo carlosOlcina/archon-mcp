@@ -225,6 +225,8 @@ importers:
         specifier: ^22.10.1
         version: 22.20.5
 
+  apps/worker-rs: {}
+
   packages/catalog:
     dependencies:
       '@archon/validators':
@@ -234,6 +236,9 @@ importers:
       '@archon/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
+      '@types/node':
+        specifier: ^22.20.5
+        version: 22.20.5
 
   packages/database:
     dependencies:
@@ -250,6 +255,9 @@ importers:
       '@archon/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
+      '@types/node':
+        specifier: ^22.20.5
+        version: 22.20.5
       '@types/pg':
         specifier: ^8.11.10
         version: 8.23.1
@@ -287,6 +295,9 @@ importers:
       '@archon/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
+      '@types/node':
+        specifier: ^22.20.5
+        version: 22.20.5
 
 packages:
 
