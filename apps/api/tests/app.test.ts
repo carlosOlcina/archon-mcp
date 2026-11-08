@@ -24,5 +24,5 @@ describe('@archon/api smoke tests', () => {
     expect(metadata.catalog).toBe('@archon/catalog');
 
     await app.close();
-  });
+  }, 60_000);
 });

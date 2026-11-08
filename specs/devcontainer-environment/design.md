@@ -23,8 +23,8 @@ flowchart TD
             env_loader["loadEnvConfig (.env.local > .env.dev/.test)"]
         end
 
-        subgraph DBService ["Servicio: db (pgvector/pgvector:pg16)"]
-            pg["PostgreSQL 16 Engine"]
+        subgraph DBService ["Servicio: db (pgvector/pgvector:pg17)"]
+            pg["PostgreSQL 17 Engine"]
             lib_vector["Librería pgvector instalada (/usr/lib/postgresql/...)"]
             dev_db["Base: archon_dev"]
             test_db["Base: archon_test"]
@@ -62,7 +62,7 @@ flowchart TD
      - `depends_on`: servicio `db` con condición `condition: service_healthy`.
      - `command`: `sleep infinity` para mantener el contenedor activo.
    - **Servicio `db`:**
-     - `image`: `pgvector/pgvector:pg16`. Esta imagen contiene precompilados los binarios y archivos de control de la extensión `pgvector` en PostgreSQL 16.
+     - `image`: `pgvector/pgvector:pg17`. Esta imagen contiene precompilados los binarios y archivos de control de la extensión `pgvector` en PostgreSQL 17 (pgvector 0.8.7).
      - `restart`: `unless-stopped`.
      - `environment`:
        - `POSTGRES_USER`: `postgres`
@@ -70,7 +70,7 @@ flowchart TD
        - `POSTGRES_DB`: `archon_dev`
      - `ports`: `["5432:5432"]` para acceso directo desde herramientas de base de datos en el host.
      - `volumes`:
-       - `postgres-data:/var/lib/postgresql/data` (persistencia local).
+       - `archon-postgres-data:/var/lib/postgresql/data` (persistencia local dedicada al proyecto).
        - `./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro` (inicialización de bases de datos).
      - `healthcheck`:
        - `test`: `["CMD-SHELL", "pg_isready -U postgres -d archon_dev"]`
@@ -99,7 +99,7 @@ flowchart TD
 
 4. **`.devcontainer/init-db.sql` — Separación Estricta de Responsabilidades**
    - **Responsabilidad:** Exclusivamente la creación idempotente y aseguramiento de la existencia de las bases de datos de desarrollo (`archon_dev`) y pruebas (`archon_test`).
-   - **No responsabilidad:** La ejecución de `CREATE EXTENSION IF NOT EXISTS vector;` ni la creación de tablas o índices DDL **no** forman parte de `init-db.sql`. Dicha activación pertenece formalmente al sistema de migraciones de base de datos de la aplicación (ej. migraciones ejecutadas al arrancar o mediante scripts de migración). La imagen `pgvector/pgvector:pg16` provee los binarios necesarios para que cualquier migración posterior active la extensión sin fallos.
+   - **No responsabilidad:** La ejecución de `CREATE EXTENSION IF NOT EXISTS vector;` ni la creación de tablas o índices DDL **no** forman parte de `init-db.sql`. Dicha activación pertenece formalmente al sistema de migraciones de base de datos de la aplicación (ej. migraciones ejecutadas al arrancar o mediante scripts de migración). La imagen `pgvector/pgvector:pg17` provee los binarios necesarios para que cualquier migración posterior active la extensión sin fallos.
    - **Contenido del script:**
      ```sql
      -- init-db.sql: Inicialización de bases de datos para desarrollo y pruebas

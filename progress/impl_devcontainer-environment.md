@@ -7,7 +7,7 @@ Se ha implementado satisfactoriamente la feature **`devcontainer-environment`** 
 ### Archivos Intervenidos y Creados
 
 1. **Configuración de Infraestructura en `.devcontainer/`:**
-   - [`.devcontainer/docker-compose.yml`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/.devcontainer/docker-compose.yml): Orquestación desacoplada de los servicios `app` (contenedor polyglot) y `db` (`pgvector/pgvector:pg16`), exponiendo puertos 3000 y 5432, con volúmenes persistentes (`postgres-data`, `cargo-cache`, `pnpm-store`), red interna (`archon-network`) y comprobación de salud (`healthcheck`).
+   - [`.devcontainer/docker-compose.yml`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/.devcontainer/docker-compose.yml): Orquestación desacoplada de los servicios `app` (contenedor polyglot) y `db` (`pgvector/pgvector:pg17`), exponiendo puertos 3000 y 5432, con volúmenes persistentes (`archon-postgres-data`, `cargo-cache`, `pnpm-store`), red interna (`archon-network`) y comprobación de salud (`healthcheck`).
    - [`.devcontainer/Dockerfile`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/.devcontainer/Dockerfile): Imagen de desarrollo basada en `node:22-bookworm`, con `corepack` y `pnpm@12.18.0`, y toolchain de Rust completo (`rustc`, `cargo`, `clippy`, `rustfmt`) instalado vía `rustup` no interactivo.
    - [`.devcontainer/init-db.sql`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/.devcontainer/init-db.sql): Sentencias DDL idempotentes para inicializar `archon_dev` y `archon_test`, respetando la separación estricta de responsabilidades (las extensiones y esquemas relacionales se delegan íntegramente a las migraciones).
    - [`.devcontainer/devcontainer.json`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/.devcontainer/devcontainer.json): Configuración de espacio de trabajo VSCode, forward de puertos 3000 y 5432, script `postCreateCommand`, y extensiones recomendadas (`rust-analyzer`, `vscode-eslint`, `vitest.explorer`, `vscode-postgres`).
@@ -44,7 +44,7 @@ Se ha implementado satisfactoriamente la feature **`devcontainer-environment`** 
 | Requisito EARS | Descripción Resumida | Test Automatizado Asociado | Resultado |
 |---|---|---|---|
 | **R1** | Servicios `app` y `db` en Docker Compose | [`packages/database/tests/infrastructure.test.ts`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/packages/database/tests/infrastructure.test.ts) > `should define app and db services in .devcontainer/docker-compose.yml [R1]` | **PASSED** |
-| **R2** | PostgreSQL con pgvector y puerto 5432 | [`packages/database/tests/infrastructure.test.ts`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/packages/database/tests/infrastructure.test.ts) > `should configure pgvector/pgvector:pg16 and port 5432 in db service [R2]` | **PASSED** |
+| **R2** | PostgreSQL con pgvector y puerto 5432 | [`packages/database/tests/infrastructure.test.ts`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/packages/database/tests/infrastructure.test.ts) > `should configure pgvector/pgvector:pg17 and port 5432 in db service [R2]` | **PASSED** |
 | **R3** | `init-db.sql` idempotente para `archon_dev` y `archon_test`, sin DDL de vector | [`packages/database/tests/infrastructure.test.ts`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/packages/database/tests/infrastructure.test.ts) > `should provide idempotent DDL for archon_dev and archon_test [R3]` & `should strictly delegate extension vector and table schemas away from init-db.sql [R3]` | **PASSED** |
 | **R4** | Dockerfile polyglot (Node 22 LTS, pnpm, Rust toolchain) | [`packages/database/tests/infrastructure.test.ts`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/packages/database/tests/infrastructure.test.ts) > `should base image on Node 22 LTS, include pnpm and full Rust toolchain [R4]` | **PASSED** |
 | **R5** | `devcontainer.json` con servicio app y forwardPorts 3000 y 5432 | [`packages/database/tests/infrastructure.test.ts`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/packages/database/tests/infrastructure.test.ts) > `should configure devcontainer.json with service app and forwarded ports 3000 and 5432 [R5]` | **PASSED** |
@@ -105,3 +105,31 @@ Se ejecutó la suite completa del monorepo mediante Turborepo con resultados 100
     ```
   - En [`packages/database/tests/infrastructure.test.ts`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/packages/database/tests/infrastructure.test.ts): se reforzó la aserción de `[R4]` validando explícitamente `toContain('--component clippy')`, `toContain('--component rustfmt')` y `not.toContain('--component clippy rustfmt')` para prevenir regresiones de sintaxis en `rustup-init`.
 - **Verificación:** Ejecución satisfactoria de lint, typecheck y tests completos en Turborepo (10/10 tareas exitosas).
+
+---
+
+## 5. Corrección de Compatibilidad de Motor PostgreSQL y Aislamiento de Volúmenes
+
+- **Causa raíz:** Durante las pruebas de integración real con Docker en el host, el contenedor de PostgreSQL fallaba con el error:
+  `FATAL: database files are incompatible with server. The data directory was initialized by PostgreSQL version 17, which is not compatible with this version 16.15`.
+  Adicionalmente, el identificador genérico del volumen `postgres-data` generaba colisiones con volúmenes existentes de otros proyectos en Docker Desktop.
+- **Solución aplicada:**
+  - En [`.devcontainer/docker-compose.yml`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/.devcontainer/docker-compose.yml):
+    - Se actualizó la imagen del servicio `db` a `pgvector/pgvector:pg17` (PostgreSQL 17 con extensión pgvector 0.8.7).
+    - Se configuró el volumen dedicado con namespace de proyecto: `archon-postgres-data` tanto en el montaje del servicio `db` como en el bloque global de `volumes:`.
+  - En [`packages/database/tests/infrastructure.test.ts`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/packages/database/tests/infrastructure.test.ts):
+    - Se actualizó la prueba de `[R2]` verificando la imagen `pgvector/pgvector:pg17` (y compatibilidad regex `pg16|pg17`) y la presencia del volumen dedicado `archon-postgres-data`.
+  - En la especificación (`specs/devcontainer-environment/design.md` y `tasks.md`):
+    - Se documentó la adopción de `pgvector/pgvector:pg17` y el volumen `archon-postgres-data`.
+- **Verificación:** Ejecución satisfactoria de `lint` (6/6), `typecheck` (10/10) y `test` (10/10 tareas, 46 tests verdes).
+
+
+---
+
+## 6. Ajustes de Entorno Devcontainer en Linux / Docker
+
+- **Causa raíz 1 (Toolchain de Rust en Linux):** Turborepo aísla las variables de entorno de los subprocesos en cada tarea, lo que causaba que `RUSTUP_HOME` y `CARGO_HOME` no se propagasen a subprocesos en entornos Linux donde el toolchain de Rust se encuentra instalado fuera de `/usr/bin`.
+  - **Solución aplicada:** Se añadió `"globalPassThroughEnv": ["RUSTUP_HOME", "CARGO_HOME"]` en [`turbo.json`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/turbo.json) para asegurar que Turborepo conserve intactas las variables del toolchain en todas las tareas del pipeline.
+- **Causa raíz 2 (Timeout de Vitest en entornos virtualizados/Docker):** En el contenedor real bajo Docker/Linux, la compilación inicial del grafo de dependencias de NestJS sobre volúmenes montados excedía los 5000 ms por defecto de Vitest.
+  - **Solución aplicada:** En [`apps/api/tests/app.test.ts`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/apps/api/tests/app.test.ts), se configuró un timeout explícito de `60_000` ms (60s) en la prueba `should compile AppModule and resolve NestUtilsSanityService dependency`.
+- **Verificación:** Ejecución de `pnpm turbo run lint` (6/6 exitosas), `pnpm turbo run typecheck` (10/10 exitosas) y `pnpm turbo run test` (10/10 tareas exitosas, 46 pruebas en verde).

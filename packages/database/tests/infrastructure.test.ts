@@ -21,10 +21,13 @@ describe('Infrastructure & DevContainer Environment Configuration', () => {
       expect(content).toContain('archon-network');
     });
 
-    it('should configure pgvector/pgvector:pg16 and port 5432 in db service [R2]', () => {
+    it('should configure pgvector/pgvector:pg17 and port 5432 in db service [R2]', () => {
       const content = fs.readFileSync(composePath, 'utf8');
 
-      expect(content).toContain('image: pgvector/pgvector:pg16');
+      expect(content).toMatch(/image:\s+pgvector\/pgvector:(pg16|pg17)/);
+      expect(content).toContain('image: pgvector/pgvector:pg17');
+      expect(content).toContain('archon-postgres-data:/var/lib/postgresql/data');
+      expect(content).toContain('archon-postgres-data:');
       expect(content).toContain('5432:5432');
       expect(content).toContain('POSTGRES_DB: archon_dev');
       expect(content).toContain('pg_isready -U postgres -d archon_dev');
