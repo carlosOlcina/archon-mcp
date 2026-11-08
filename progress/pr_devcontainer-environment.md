@@ -17,6 +17,7 @@
 | `8fb2314` | `feat(catalog)` | implement embedding provider interface, mock, real worker client, and factory |
 | `900b78a` | `test(devcontainer)` | add unit and infrastructure validation suites |
 | `8ceb9d0` | `docs(progress)` | record implementation, review, and status update for devcontainer-environment |
+| `3dc77d9` | `fix(devcontainer)` | separate clippy and rustfmt flags in rustup-init |
 
 ---
 
@@ -36,9 +37,11 @@ Los cambios validados para la feature `devcontainer-environment` se organizaron 
    - Tests de infraestructura devcontainer/pgvector (`infrastructure.test.ts`), validación de variables de entorno (`env.test.ts`) y comportamiento de providers en modo mock y real (`embedding-provider.test.ts`).
 6. **`docs(progress)` - Bitácora de implementación, revisión y cierre:**
    - Informe técnico de implementación (`impl_devcontainer-environment.md`), reporte del reviewer (`review_devcontainer-environment.md`), actualización histórica en `progress/history.md`, limpieza de `progress/current.md` y marcado como `done` en `feature_list.json`.
+7. **`fix(devcontainer)` - Corrección de banderas en toolchain de Rust:**
+   - Desacoplamiento de banderas de componentes en `rustup-init` (`--component clippy` y `--component rustfmt`), aserciones estrictas contra regresiones de sintaxis en `packages/database/tests/infrastructure.test.ts` y actualización de bitácoras de auditoría.
 
 ---
 
 ## Estado
 
-- **Status:** PR abierta y lista para revisión / merge en GitHub.
+- **Status:** PR abierta y actualizada con el fix en GitHub.
