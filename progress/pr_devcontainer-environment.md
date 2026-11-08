@@ -18,6 +18,7 @@
 | `900b78a` | `test(devcontainer)` | add unit and infrastructure validation suites |
 | `8ceb9d0` | `docs(progress)` | record implementation, review, and status update for devcontainer-environment |
 | `3dc77d9` | `fix(devcontainer)` | separate clippy and rustfmt flags in rustup-init |
+| `c133c5c` | `fix(devcontainer)` | upgrade to pg17, isolate volume, and configure turbo env passthrough |
 
 ---
 
@@ -39,9 +40,13 @@ Los cambios validados para la feature `devcontainer-environment` se organizaron 
    - Informe técnico de implementación (`impl_devcontainer-environment.md`), reporte del reviewer (`review_devcontainer-environment.md`), actualización histórica en `progress/history.md`, limpieza de `progress/current.md` y marcado como `done` en `feature_list.json`.
 7. **`fix(devcontainer)` - Corrección de banderas en toolchain de Rust:**
    - Desacoplamiento de banderas de componentes en `rustup-init` (`--component clippy` y `--component rustfmt`), aserciones estrictas contra regresiones de sintaxis en `packages/database/tests/infrastructure.test.ts` y actualización de bitácoras de auditoría.
+8. **`fix(devcontainer)` - PostgreSQL 17, aislamiento de volúmenes y Turbo pass-through:**
+   - Actualización de imagen de PostgreSQL a `pgvector/pgvector:pg17` y aislamiento con volumen dedicado `archon-postgres-data` en `.devcontainer/docker-compose.yml`.
+   - Inclusión de passthrough global de variables de entorno Rust (`RUSTUP_HOME`, `CARGO_HOME`) en `turbo.json`.
+   - Timeout resiliente de 60s en `apps/api/tests/app.test.ts` para entornos virtualizados y sincronización de tests de infraestructura y specs.
 
 ---
 
 ## Estado
 
-- **Status:** PR abierta y actualizada con el fix en GitHub.
+- **Status:** PR abierta y actualizada con los fixes validados en GitHub.
