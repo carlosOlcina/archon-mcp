@@ -1,0 +1,11 @@
+{
+  "name": "@archon/worker-rs",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "cargo build",
+    "lint": "cargo clippy -- -D warnings",
+    "typecheck": "cargo check",
+    "test": "cargo test"
+  }
+}
