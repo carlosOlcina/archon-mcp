@@ -7,7 +7,7 @@
 - R1: [x] Cubierto por [`packages/database/tests/infrastructure.test.ts`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/packages/database/tests/infrastructure.test.ts) > `should define app and db services in .devcontainer/docker-compose.yml [R1]`
 - R2: [x] Cubierto por [`packages/database/tests/infrastructure.test.ts`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/packages/database/tests/infrastructure.test.ts) > `should configure pgvector/pgvector:pg16 and port 5432 in db service [R2]`
 - R3: [x] Cubierto por [`packages/database/tests/infrastructure.test.ts`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/packages/database/tests/infrastructure.test.ts) > `should provide idempotent DDL for archon_dev and archon_test [R3]` y `should strictly delegate extension vector and table schemas away from init-db.sql [R3]`
-- R4: [x] Cubierto por [`packages/database/tests/infrastructure.test.ts`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/packages/database/tests/infrastructure.test.ts) > `should base image on Node 22 LTS, include pnpm and full Rust toolchain [R4]`
+- R4: [x] Cubierto por [`packages/database/tests/infrastructure.test.ts`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/packages/database/tests/infrastructure.test.ts) > `should base image on Node 22 LTS, include pnpm and full Rust toolchain [R4]` — Se auditó y confirmó la corrección en `.devcontainer/Dockerfile` donde los componentes se instalan mediante banderas individuales (`--component clippy` y `--component rustfmt`), y el test valida explícitamente ambas banderas individuales y rechaza el argumento no válido agrupado (`--component clippy rustfmt`).
 - R5: [x] Cubierto por [`packages/database/tests/infrastructure.test.ts`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/packages/database/tests/infrastructure.test.ts) > `should configure devcontainer.json with service app and forwarded ports 3000 and 5432 [R5]`
 - R6: [x] Cubierto por [`packages/database/tests/infrastructure.test.ts`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/packages/database/tests/infrastructure.test.ts) > `should provide post-create.sh that executes pnpm install and validates Rust tools [R6]`
 - R7: [x] Cubierto por [`packages/database/tests/infrastructure.test.ts`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/packages/database/tests/infrastructure.test.ts) > `should provide canonical template in .env.example documenting all variables [R7]`
@@ -25,7 +25,7 @@
 - T1: [x] Configuración de archivos de entorno base (`.env.example`, `.env.dev`, `.env.test`)
 - T2: [x] Exclusión estricta de `.env.local` en `.gitignore` y versionado de plantillas
 - T3: [x] Creación de `.devcontainer/init-db.sql` idempotente delegando extensiones y esquemas a migraciones
-- T4: [x] Creación de `.devcontainer/Dockerfile` polyglot (Node 22 LTS, pnpm, Rust toolchain)
+- T4: [x] Creación de `.devcontainer/Dockerfile` polyglot (Node 22 LTS, pnpm, Rust toolchain con flags individuales de componentes)
 - T5: [x] Configuración de `.devcontainer/docker-compose.yml` desacoplando servicios `app` y `db`
 - T6: [x] Creación de `.devcontainer/post-create.sh` y configuración de `.devcontainer/devcontainer.json`
 - T7: [x] Implementación de esquemas Zod, resolución jerárquica y `ConfigurationError` en `@archon/validators`
@@ -34,15 +34,23 @@
 - T10: [x] Implementación de tests unitarios de validación, precedencia jerárquica y mock determinista
 - T11: [x] Ejecución y verificación completa del pipeline Turborepo (`lint`, `typecheck`, `test`)
 
+## Auditoría Específica de la Corrección R4
+
+- **Sintaxis de Rustup en `.devcontainer/Dockerfile`:** Verificado que la invocación `sh -s -- -y --profile minimal --default-toolchain stable --component clippy --component rustfmt` emplea argumentos desacoplados válidos para el script de instalación de `rustup`.
+- **Aserciones en `packages/database/tests/infrastructure.test.ts`:**
+  - `expect(content).toContain('--component clippy')` [VERIFICADO]
+  - `expect(content).toContain('--component rustfmt')` [VERIFICADO]
+  - `expect(content).not.toContain('--component clippy rustfmt')` [VERIFICADO]
+
 ## Evaluación de Checkpoints (CHECKPOINTS.md)
 
 - C1 (Arnés completo): [x] Archivos base presentes, 4 documentos de arquitectura/estándares disponibles, `pnpm turbo run lint` y `typecheck` finalizan sin errores (100% verde).
-- C2 (Estado coherente): [x] Únicamente la feature `devcontainer-environment` está en estado `in_progress`; `progress/current.md` describe con exactitud la sesión en curso.
+- C2 (Estado coherente): [x] Estado canónico de features coherente en `feature_list.json`; `progress/current.md` describe con exactitud la sesión en curso.
 - C3 (Arquitectura respetada): [x] Separación estricta entre apps y packages; dependencias unidireccionales sin ciclos; ausencia total de `console.log()` de debug o código muerto; uso riguroso de tipado sin `any` (`unknown` para causas de excepción).
-- C4 (Verificación real): [x] Suite completa de pruebas ejecutada con éxito (10/10 tareas de test exitosas, 46 pruebas en total pasando); las aserciones validan cálculos matemáticos (normalización unitaria L2), resolución jerárquica real de filesystem y validaciones de esquema estrictas.
+- C4 (Verificación real): [x] Suite completa de pruebas ejecutada con éxito (10/10 tareas de test exitosas, 46 pruebas en total pasando); las aserciones validan cálculos matemáticos (normalización unitaria L2), resolución jerárquica real de filesystem y validaciones de sintaxis y esquemas estrictas.
 - C5 (Sesión limpia): [x] No existen archivos temporales huérfanos ni artefactos no versionados fuera de los especificados.
 - C6 (Spec Driven Development): [x] Tríada SDD completa en `specs/devcontainer-environment/` (`requirements.md` en EARS estricto, `design.md`, `tasks.md`); trazabilidad 100% completa de R1 a R15 hacia tests automatizados; todas las tareas T1 a T11 completadas.
 
 ## Cambios Requeridos (en caso de rechazo)
 
-*Ninguno. La implementación satisface con máxima rigurosidad técnica todos los requisitos, contratos de interfaz y estándares del monorepo.*
+*Ninguno. La corrección en `.devcontainer/Dockerfile` y `packages/database/tests/infrastructure.test.ts` cumple rigurosamente con los requisitos, previene regresiones de sintaxis y todas las suites de prueba, comprobación de tipos y linters finalizan en verde.*

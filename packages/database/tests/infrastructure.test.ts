@@ -64,8 +64,9 @@ describe('Infrastructure & DevContainer Environment Configuration', () => {
       expect(content).toContain('corepack enable');
       expect(content).toContain('pnpm@12.18.0');
       expect(content).toContain('sh.rustup.rs');
-      expect(content).toContain('clippy');
-      expect(content).toContain('rustfmt');
+      expect(content).toContain('--component clippy');
+      expect(content).toContain('--component rustfmt');
+      expect(content).not.toContain('--component clippy rustfmt');
       expect(content).toContain('CARGO_HOME');
     });
   });

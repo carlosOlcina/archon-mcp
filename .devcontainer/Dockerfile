@@ -26,7 +26,8 @@ ENV PATH="$CARGO_HOME/bin:$PATH"
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
     --profile minimal \
     --default-toolchain stable \
-    --component clippy rustfmt \
+    --component clippy \
+    --component rustfmt \
     && chmod -R a+w "$RUSTUP_HOME" "$CARGO_HOME"
 
 WORKDIR /workspaces/archon-mcp

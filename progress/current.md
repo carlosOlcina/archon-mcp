@@ -5,24 +5,29 @@
 
 ## Estado de la sesión
 
-- **Feature en curso:** Ninguna (listo para iniciar)
-- **Status:** idle
-- **Spec asociado:** -
+- **Feature en curso:** devcontainer-environment (Fix post-auditoría Dockerfile)
+- **Status:** ready_for_review
+- **Spec asociado:** `specs/devcontainer-environment/`
 
 ## Plan de trabajo
 
-- [ ] Paso 1
+- [x] Corregir la sintaxis de flags en `.devcontainer/Dockerfile` (`--component clippy` y `--component rustfmt`)
+- [x] Añadir validación específica en `packages/database/tests/infrastructure.test.ts`
+- [x] Ejecutar suite de Turborepo (`lint`, `typecheck`, `test`)
+- [x] Documentar fix en `progress/impl_devcontainer-environment.md`
 
 ## Tareas realizadas
 
-- Ninguna
+- Corregidos flags de componentes en `rustup-init` dentro de `.devcontainer/Dockerfile`.
+- Añadidas aserciones estrictas en `packages/database/tests/infrastructure.test.ts` para prevenir regresión de sintaxis en `rustup-init`.
+- Documentado el fix en `progress/impl_devcontainer-environment.md`.
 
 ## Verificación
 
-- `pnpm turbo run lint`: Pendiente
-- `pnpm turbo run typecheck`: Pendiente
-- `pnpm turbo run test`: Pendiente
+- `pnpm turbo run lint`: Pasado (6/6 tareas verdes)
+- `pnpm turbo run typecheck`: Pasado (10/10 tareas verdes)
+- `pnpm turbo run test`: Pasado (10/10 tareas verdes, 46 tests pasando)
 
 ## Bloqueos / Notas
 
-- Ninguno
+- Ninguno. Solucionado el error de compilación de imagen de Docker.

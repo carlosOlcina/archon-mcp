@@ -91,3 +91,17 @@ Se ejecutó la suite completa del monorepo mediante Turborepo con resultados 100
 - `@archon/nest-utils:test`: 2 tests pasados en 1 archivo (`sanity.test.ts`).
 - `@archon/api:test`: 1 smoke test de integración pasado (`app.test.ts`).
 - **Total:** 10/10 tareas de prueba exitosas, 46 pruebas en total pasando en verde.
+
+---
+
+## 4. Corrección y Refinamiento Post-Auditoría (Fix de componentes en Dockerfile)
+
+- **Causa raíz:** `rustup-init` no admite múltiples argumentos tras un único flag `--component` (trata el segundo como argumento posicional no reconocido). La invocación `--component clippy rustfmt` fallaba al construir la imagen Docker con el error `error: unexpected argument 'rustfmt' found`.
+- **Solución aplicada:**
+  - En [`.devcontainer/Dockerfile`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/.devcontainer/Dockerfile): se desglosaron los componentes en flags individuales:
+    ```dockerfile
+        --component clippy \
+        --component rustfmt \
+    ```
+  - En [`packages/database/tests/infrastructure.test.ts`](file:///C:/Users/carlo/.gemini/antigravity/worktrees/archon-mcp/setup_devcontainer_environment/packages/database/tests/infrastructure.test.ts): se reforzó la aserción de `[R4]` validando explícitamente `toContain('--component clippy')`, `toContain('--component rustfmt')` y `not.toContain('--component clippy rustfmt')` para prevenir regresiones de sintaxis en `rustup-init`.
+- **Verificación:** Ejecución satisfactoria de lint, typecheck y tests completos en Turborepo (10/10 tareas exitosas).
