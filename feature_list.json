@@ -20,6 +20,12 @@
       "description": "Scaffolding e inicializacion de apps, packages y worker de Rust en el monorepo Turborepo, configurando workspaces, dependencias y scripts de verificacion base.",
       "sdd": true,
       "status": "done"
+    },
+    {
+      "name": "devcontainer-environment",
+      "description": "Configuracion de .devcontainer (PostgreSQL con pgvector, Node.js, pnpm, Rust toolchain) y arquitectura de entorno de desarrollo con mock del modelo para desarrollo/tests unitarios y preparacion para worker real.",
+      "sdd": true,
+      "status": "done"
     }
   ]
 }
