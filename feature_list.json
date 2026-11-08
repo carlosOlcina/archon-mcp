@@ -14,5 +14,12 @@
     ],
     "sdd_required_when": "feature has \"sdd\": true"
   },
-  "features": []
+  "features": [
+    {
+      "name": "workspace-scaffold",
+      "description": "Scaffolding e inicializacion de apps, packages y worker de Rust en el monorepo Turborepo, configurando workspaces, dependencias y scripts de verificacion base.",
+      "sdd": true,
+      "status": "done"
+    }
+  ]
 }
