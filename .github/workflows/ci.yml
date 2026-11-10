@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Lint, Typecheck & Test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/archon_test?sslmode=disable
+      TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/archon_test?sslmode=disable
+      WORKER_MODE: mock
+      EMBEDDING_DIMENSION: 384
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.18.0
+          run_install: false
+
+      - name: Setup Node.js 22 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install Node.js dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Cache Cargo dependencies and target
+        uses: Swatinem/rust-cache@v2
+
+      - name: Initialize test database
+        run: |
+          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -c "SELECT 'CREATE DATABASE archon_test' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'archon_test')\gexec"
+
+      - name: Run dbmate migrations on archon_test
+        run: pnpm db:migrate
+
+      - name: Setup Turborepo local cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-
+
+      - name: Determine Turborepo filter
+        id: turbo-filter
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "TURBO_FILTER=--filter=...[origin/main]" >> $GITHUB_ENV
+          elif [ "${{ github.event_name }}" = "push" ] && git rev-parse --verify HEAD^1 >/dev/null 2>&1; then
+            echo "TURBO_FILTER=--filter=...[HEAD^1]" >> $GITHUB_ENV
+          else
+            echo "TURBO_FILTER=" >> $GITHUB_ENV
+          fi
+
+      - name: Turborepo lint
+        run: pnpm turbo run lint $TURBO_FILTER
+
+      - name: Turborepo typecheck
+        run: pnpm turbo run typecheck $TURBO_FILTER
+
+      - name: Turborepo test
+        run: pnpm turbo run test $TURBO_FILTER
