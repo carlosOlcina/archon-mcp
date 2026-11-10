@@ -49,3 +49,36 @@
 - `pnpm turbo run lint`: Exitoso (100% verde en los 7 paquetes/apps)
 - `pnpm turbo run typecheck`: Exitoso (100% verde en los 7 paquetes/apps)
 - `pnpm turbo run test`: Exitoso (10/10 tareas, 46 tests pasando)
+
+
+---
+
+## [2026-11-10] Feature: `dbmate-technologies-migration`
+
+- **Feature:** `dbmate-technologies-migration`
+- **Spec:** `specs/dbmate-technologies-migration/`
+- **Estado final:** done (aceptada formalmente por el usuario en Puerta 2)
+- **Implementación:** `progress/impl_dbmate-technologies-migration.md`
+- **Revisión:** `progress/review_dbmate-technologies-migration.md` (APPROVED)
+
+### Resumen de cambios
+- Integración de `dbmate` (`^2.38.0`) en devDependencies y configuración de scripts de ciclo de vida (`db:migrate`, `db:rollback`, `db:status`, `db:new`) y variantes `:dev` (`--env-file .env.dev`) en la raíz del workspace.
+- Configuración del sistema de migraciones directamente en `packages/database/migrations` (sin directorio `/db` intermedio) y volcado de esquema consolidado en `packages/database/schema.sql`.
+- Primera migración SQL declarativa (`20261110000000_create_technologies_table.sql`):
+  * Activación idempotente de extensiones `uuid-ossp` y `vector`.
+  * Tabla `technologies` con `id UUID PRIMARY KEY DEFAULT gen_random_uuid()`.
+  * Columnas `name VARCHAR(100)`, `category VARCHAR(32)`, `father_technology_id UUID REFERENCES technologies(id) ON DELETE CASCADE`.
+  * Columnas `description TEXT`, `slug VARCHAR(64) UNIQUE`, `is_activate BOOLEAN DEFAULT true`, `aliases TEXT[] DEFAULT '{}'`.
+  * Marcas de auditoría `created_at` y `updated_at` de tipo `TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP`.
+  * Índices B-Tree en `category` y `father_technology_id`.
+  * Índice invertido generalizado GIN sobre array `aliases`.
+  * Reversibilidad atómica en `migrate:down` con `DROP TABLE IF EXISTS technologies CASCADE;`.
+- Esquemas de validación Zod en `@archon/validators` (`TechnologyRowSchema`, `TechnologySchema`, `CreateTechnologySchema`, `UpdateTechnologySchema`) con normalización transparente de alias de clave padre (`fatherTechnologyId`, `father_technology_id`, `fatherTecnology`) y formato kebab-case estricto para slugs.
+- Tipos de entidad y fila en `@archon/database` con mappers bidireccionales puros (`mapTechnologyRowToEntity`, `mapEntityToTechnologyRow`).
+- Suite de tests automatizados (17 de migración e infraestructura, 15 de validación Zod, 6 de mapeo de base de datos) alcanzando 84 tests en verde en todo el monorepo.
+- Trazabilidad completa R1-R15 verificada.
+
+### Resultados de verificación
+- `pnpm turbo run lint`: Pasó (6/6 tareas exitosas, ESLint y Clippy)
+- `pnpm turbo run typecheck`: Pasó (10/10 tareas exitosas, TypeScript strict sin 'any')
+- `pnpm turbo run test`: Pasó (10/10 tareas exitosas, 84 tests pasando)

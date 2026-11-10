@@ -5,13 +5,13 @@
 
 ## Estado de la sesión
 
-- **Feature en curso:** Ninguna (listo para iniciar)
+- **Feature en curso:** ninguna
 - **Status:** idle
-- **Spec asociado:** -
+- **Spec asociado:** ninguno
 
 ## Plan de trabajo
 
-- [ ] Paso 1
+- [ ] (A la espera de nueva feature)
 
 ## Tareas realizadas
 
@@ -19,9 +19,9 @@
 
 ## Verificación
 
-- `pnpm turbo run lint`: Pendiente
-- `pnpm turbo run typecheck`: Pendiente
-- `pnpm turbo run test`: Pendiente
+- `pnpm turbo run lint`: pendiente
+- `pnpm turbo run typecheck`: pendiente
+- `pnpm turbo run test`: pendiente
 
 ## Bloqueos / Notas
 
