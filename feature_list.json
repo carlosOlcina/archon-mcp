@@ -26,6 +26,12 @@
       "description": "Configuracion de .devcontainer (PostgreSQL con pgvector, Node.js, pnpm, Rust toolchain) y arquitectura de entorno de desarrollo con mock del modelo para desarrollo/tests unitarios y preparacion para worker real.",
       "sdd": true,
       "status": "done"
+    },
+    {
+      "name": "dbmate-technologies-migration",
+      "description": "Configuración del sistema de migraciones con dbmate directamente en packages/database/migrations, scripts npm asociados, y primera migración SQL para la tabla 'technologies' (UUID id, name(100), category(32), fatherTecnology FK self-reference opcional con ON DELETE CASCADE, description TEXT, slug(64) UNIQUE, is_activate BOOLEAN, aliases TEXT[] con índice GIN, created_at/updated_at timestamptz, índices B-Tree en category y fatherTecnology), junto con tipos, esquemas de validación y tests.",
+      "sdd": true,
+      "status": "done"
     }
   ]
 }

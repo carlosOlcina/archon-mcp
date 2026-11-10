@@ -14,3 +14,11 @@ export const DATABASE_PACKAGE_INFO: DatabasePackageInfo = {
 };
 
 export { pg, pgvector };
+
+export {
+  type TechnologyRow,
+  type Technology,
+  mapTechnologyRowToEntity,
+  mapEntityToTechnologyRow,
+} from './technology.js';
+
