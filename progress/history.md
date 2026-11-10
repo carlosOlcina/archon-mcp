@@ -82,3 +82,32 @@
 - `pnpm turbo run lint`: Pasó (6/6 tareas exitosas, ESLint y Clippy)
 - `pnpm turbo run typecheck`: Pasó (10/10 tareas exitosas, TypeScript strict sin 'any')
 - `pnpm turbo run test`: Pasó (10/10 tareas exitosas, 84 tests pasando)
+
+---
+
+## [2026-11-10] Feature: `github-actions-ci`
+
+- **Feature:** `github-actions-ci`
+- **Spec:** `specs/github-actions-ci/`
+- **Estado final:** done (aceptada formalmente por el usuario en Puerta 2)
+- **Implementación:** `progress/impl_github-actions-ci.md`
+- **Revisión:** `progress/review_github-actions-ci.md` (APPROVED)
+
+### Resumen de cambios
+- Creación de `.github/workflows/ci.yml` con triggers (`push` en `main`, `pull_request` a `main`), concurrencia (`concurrency` con cancelación automática de runs anteriores en PRs) y permisos mínimos (`contents: read`).
+- Estrategia de checkout completo (`fetch-depth: 0`) para permitir detección precisa de commits cambiados y cálculo de afectación con Turborepo.
+- Instalación determinista de `pnpm` versión `12.18.0` con caching nativo de store y setup de Node.js `22` LTS.
+- Instalación de Rust toolchain estable con componentes `clippy` y `rustfmt`, integrado con acción de caching para Cargo registry, índice y artefactos de compilación (`apps/worker-rs/target`).
+- Servicio de base de datos PostgreSQL en contenedor de workflow utilizando imagen oficial `pgvector/pgvector:pg16` con healthcheck activo y variables de entorno de pruebas (`archon_test`).
+- Integración de herramienta de migración `dbmate` (`^2.38.0`) en el paso de CI para ejecutar `dbmate --migrations-dir packages/database/migrations up` garantizando esquema sincronizado antes de correr pruebas.
+- Caching de Turborepo en `.turbo` y configuración para Turborepo Remote Cache mediante variables de entorno seguras (`TURBO_TOKEN`, `TURBO_TEAM`).
+- Cálculo dinámico de filtro Turborepo (`TURBO_FILTER`) ejecutando únicamente tareas sobre workspaces modificados (`...[origin/main]` en PRs y `...[HEAD^]` en pushes a `main`) con fallback seguro a todo el monorepo.
+- Ejecución secuencial y estricta de `turbo run lint`, `turbo run typecheck` y `turbo run test`, abortando ante cualquier fallo.
+- Creación de suite exhaustiva de tests automatizados de infraestructura CI en `packages/database/tests/ci-workflow.test.ts` (20 tests verificando R1 a R20).
+- Trazabilidad completa R1-R20 validada con 104 tests en verde en todo el monorepo.
+
+### Resultados de verificación
+- `pnpm turbo run lint`: Pasó (6/6 tareas exitosas, ESLint y Clippy)
+- `pnpm turbo run typecheck`: Pasó (10/10 tareas exitosas, TypeScript strict sin 'any')
+- `pnpm turbo run test`: Pasó (10/10 tareas exitosas, 104 tests pasando)
+

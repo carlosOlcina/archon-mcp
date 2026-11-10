@@ -32,6 +32,12 @@
       "description": "Configuración del sistema de migraciones con dbmate directamente en packages/database/migrations, scripts npm asociados, y primera migración SQL para la tabla 'technologies' (UUID id, name(100), category(32), fatherTecnology FK self-reference opcional con ON DELETE CASCADE, description TEXT, slug(64) UNIQUE, is_activate BOOLEAN, aliases TEXT[] con índice GIN, created_at/updated_at timestamptz, índices B-Tree en category y fatherTecnology), junto con tipos, esquemas de validación y tests.",
       "sdd": true,
       "status": "done"
+    },
+    {
+      "name": "github-actions-ci",
+      "description": "Configuración de GitHub Actions para verificación CI en PRs y pushes a main: setup de Node.js, pnpm con cache, Rust toolchain con cache, servicio PostgreSQL con pgvector, inicialización y migración con dbmate de la base de datos de pruebas (archon_test), Turborepo cache y ejecución de lint, typecheck y tests (unitarios, integración y e2e) filtrando únicamente los proyectos afectados/modificados aprovechando las capacidades de Turborepo.",
+      "sdd": true,
+      "status": "done"
     }
   ]
 }
